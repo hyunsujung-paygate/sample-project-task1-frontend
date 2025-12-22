@@ -1,2 +1,116 @@
-# sample-project-task1-frontend
-서울시_공영_주차장_안내_APP_WEB
+# 서울시 공영주차장 안내 웹 애플리케이션
+
+서울시 열린데이터 Open API를 활용하여 서울시 공영주차장 안내 정보를 카카오맵에 표시하는 웹 애플리케이션입니다.
+
+## 📋 프로젝트 개요
+
+본 프로젝트는 서울시 공영주차장 정보를 조회하고 카카오맵에 시각적으로 표시하는 기능을 제공합니다.
+
+### 주요 기능
+- 서울시 공영주차장 Open API를 통한 주차장 정보 조회
+- 카카오맵 API를 활용한 지도 표시
+- API 리턴값을 통한 지도 마커 표시 (필수 기능)
+- 주차장 상세 정보 표시 (선택 기능)
+
+## 🛠 기술 스택
+
+- **프레임워크**: Vue.js 3
+- **언어**: TypeScript
+- **빌드 도구**: Vite
+- **개발 방식**: TDD (Test-Driven Development)
+- **설계 원칙**: DDD (Domain-Driven Design) 개념 적용
+
+## 📁 프로젝트 구조
+
+```
+src/
+├── domain/                    # 도메인 레이어
+│   ├── ParkingLot/           # 주차장 도메인
+│   └── Map/                  # 지도 도메인
+├── infrastructure/            # 인프라스트럭처 레이어
+│   ├── api/                  # 외부 API 통신
+│   └── repository/           # 리포지토리 구현
+├── application/              # 애플리케이션 레이어
+│   ├── usecase/              # 유스케이스
+│   └── dto/                  # 데이터 전송 객체
+├── presentation/             # 프레젠테이션 레이어
+│   ├── components/           # Vue 컴포넌트
+│   ├── views/                # 페이지 뷰
+│   └── router/               # 라우터 설정
+├── tests/                    # 테스트 코드
+└── shared/                   # 공유 유틸리티
+    ├── constants/            # 상수 관리
+    └── utils/                # 유틸리티 함수
+```
+
+## 🚀 시작하기
+
+### 필수 요구사항
+- Node.js 18.x 이상
+- npm 또는 yarn
+
+### 설치 및 실행
+
+1. **의존성 설치**
+```bash
+npm install
+```
+
+2. **환경 변수 설정**
+`.env` 파일을 생성하고 다음 변수를 설정하세요:
+```env
+VITE_SEOUL_API_KEY=your_seoul_api_key
+VITE_KAKAO_MAP_KEY=your_kakao_map_key
+VITE_API_BASE_URL=http://localhost:8080/api
+```
+
+3. **개발 서버 실행**
+```bash
+npm run dev
+```
+
+4. **빌드**
+```bash
+npm run build
+```
+
+5. **테스트 실행**
+```bash
+npm run test
+```
+
+## 📚 API 연동
+
+### 서울시 열린데이터 Open API
+- **API 가이드**: https://data.seoul.go.kr/together/guide/useGuide.do
+- 서울시 공영주차장 안내 정보 조회
+
+### 카카오맵 API
+- **API 가이드**: https://apis.map.kakao.com/web/sample/
+- 지도 표시 및 마커 표시
+
+## 📖 개발 문서
+
+자세한 개발 가이드는 [프론트엔드 개발 문서](./Docs/프론트엔드_개발문서.md)를 참고하세요.
+
+## 🧪 테스트
+
+본 프로젝트는 TDD 방식으로 개발됩니다.
+- 단위 테스트: 도메인 로직, 유스케이스, API 클라이언트
+- 통합 테스트: API 연동, 컴포넌트 통합
+
+## 📝 코딩 컨벤션
+
+- **파일명**: PascalCase 사용
+- **클래스명**: PascalCase 사용
+- **상수명**: UPPER_SNAKE_CASE 사용
+- **변수명**: camelCase 사용
+- **함수명**: 동사로 시작
+- 모든 함수에는 JSDoc 스타일의 주석 포함
+- 코드 주석은 한글로 작성
+
+자세한 내용은 [프론트엔드 개발 문서](./Docs/프론트엔드_개발문서.md)를 참고하세요.
+
+## 📄 라이선스
+
+이 프로젝트는 개인 학습 목적으로 제작되었습니다.
