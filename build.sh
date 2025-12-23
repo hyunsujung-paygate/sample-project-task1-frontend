@@ -35,36 +35,50 @@ echo "💡 npm 업그레이드는 건너뜁니다 (Node.js 18과 호환성 유�
 echo "=== package-lock.json 확인 ==="
 if [ -f "package-lock.json" ]; then
   echo "✅ package-lock.json 존재 확인"
+  echo "📄 package-lock.json 크기: $(ls -lh package-lock.json | awk '{print $5}')"
+  echo "📄 package-lock.json 첫 줄: $(head -1 package-lock.json)"
+  # vite가 package-lock.json에 있는지 확인
+  if grep -q '"vite"' package-lock.json; then
+    echo "✅ vite가 package-lock.json에 포함되어 있습니다"
+  else
+    echo "⚠️ vite가 package-lock.json에 없습니다!"
+  fi
 else
   echo "⚠️ package-lock.json이 없습니다. npm install을 사용합니다."
 fi
 
 # 의존성 설치
 echo "=== 의존성 설치 ==="
-if [ -f "package-lock.json" ]; then
-  if ! npm ci; then
-    echo "⚠️ npm ci 실패, npm install로 재시도..."
-    npm install
-  fi
-else
-  echo "📦 npm install 실행..."
-  npm install
-fi
+# node_modules 완전히 정리
+rm -rf node_modules 2>/dev/null || true
+
+# npm install을 기본으로 사용 (Docker 빌드 컨텍스트에서 더 안정적)
+echo "📦 npm install 실행 중..."
+npm install
+
+# 설치된 패키지 수 확인
+INSTALLED_COUNT=$(find node_modules -maxdepth 1 -type d 2>/dev/null | wc -l || echo "0")
+echo "📦 설치된 패키지 수: $INSTALLED_COUNT"
 
 # 설치된 패키지 확인
 echo "=== 설치된 패키지 확인 ==="
 if [ ! -f "node_modules/.bin/vite" ]; then
   echo "❌ vite가 설치되지 않았습니다!"
-  echo "📦 node_modules 내용 확인:"
+  echo "📦 node_modules/.bin 내용:"
   ls -la node_modules/.bin/ 2>/dev/null || echo "node_modules/.bin 폴더가 없습니다"
-  echo "💡 npm install을 다시 시도합니다..."
+  echo "📦 node_modules 루트 내용 (일부):"
+  ls -la node_modules/ | head -20 2>/dev/null || echo "node_modules 폴더가 없습니다"
+  echo "💡 node_modules를 완전히 정리하고 npm install을 다시 시도합니다..."
+  rm -rf node_modules package-lock.json 2>/dev/null || true
   npm install
   if [ ! -f "node_modules/.bin/vite" ]; then
-    echo "❌ vite 설치 실패! package.json을 확인해주세요."
+    echo "❌ vite 설치 실패!"
+    echo "📋 package.json의 devDependencies 확인:"
+    grep -A 20 '"devDependencies"' package.json || echo "package.json을 읽을 수 없습니다"
     exit 1
   fi
 fi
-echo "✅ vite 설치 확인됨"
+echo "✅ vite 설치 확인됨: $(which vite || echo 'node_modules/.bin/vite')"
 
 # 빌드 실행
 echo "=== 빌드 실행 ==="
