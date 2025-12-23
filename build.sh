@@ -67,14 +67,21 @@ echo "=== 의존성 설치 ==="
 # node_modules 완전히 정리
 rm -rf node_modules 2>/dev/null || true
 
+# NODE_ENV 확인 및 설정
+echo "📋 NODE_ENV 확인: ${NODE_ENV:-(설정되지 않음)}"
+if [ "${NODE_ENV}" = "production" ]; then
+  echo "⚠️ NODE_ENV가 production으로 설정되어 있습니다. devDependencies 설치를 위해 해제합니다."
+  unset NODE_ENV
+fi
+
 # package-lock.json과 package.json 동기화 문제 해결
 # package-lock.json이 package.json과 맞지 않을 수 있으므로 삭제 후 재생성
 echo "📦 package-lock.json 삭제 후 npm install 실행 (동기화 문제 해결)..."
 rm -f package-lock.json 2>/dev/null || true
 
-# npm install 실행 (package-lock.json 재생성)
-echo "📦 npm install 실행 중..."
-npm install 2>&1
+# npm install 실행 (package-lock.json 재생성, devDependencies 포함)
+echo "📦 npm install 실행 중 (devDependencies 포함)..."
+npm install --include=dev 2>&1
 
 # 설치 완료 확인
 echo "📦 npm install 완료 확인..."
@@ -97,7 +104,7 @@ else
   echo "📋 node_modules/vite 폴더 확인:"
   ls -la node_modules/ | grep vite || echo "vite 폴더가 없습니다"
   echo "💡 vite를 명시적으로 설치합니다..."
-  npm install vite@^5.1.0 --save-dev --force
+  npm install vite@^5.1.0 --save-dev --include=dev --force
   if [ -f "node_modules/vite/package.json" ]; then
     echo "✅ vite 명시적 설치 성공"
   else
