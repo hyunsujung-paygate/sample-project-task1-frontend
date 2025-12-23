@@ -45,8 +45,12 @@ export class MapServiceImpl implements MapService {
    * 주차장 목록을 지도에 마커로 표시한다
    *
    * @param parkingLots 주차장 목록
+   * @param options 표시 옵션
    */
-  public displayMarkers(parkingLots: ParkingLot[]): void {
+  public displayMarkers(
+    parkingLots: ParkingLot[],
+    options?: { fitBounds?: boolean; setCenterOnSingle?: boolean }
+  ): void {
     if (!this.map) {
       throw new Error('지도가 초기화되지 않았습니다.');
     }
@@ -103,9 +107,12 @@ export class MapServiceImpl implements MapService {
       });
     });
 
+    const fitBounds = options?.fitBounds ?? true;
+    const setCenterOnSingle = options?.setCenterOnSingle ?? true;
+
     // 마커가 있을 경우 지도 범위 조정
-    if (this.markers.length > 0) {
-      if (this.markers.length === 1) {
+    if (this.markers.length > 0 && fitBounds) {
+      if (this.markers.length === 1 && setCenterOnSingle) {
         // 마커가 1개일 때는 해당 위치로 중심 이동 및 확대
         const singleMarker = this.markers[0];
         const position = singleMarker.getPosition();

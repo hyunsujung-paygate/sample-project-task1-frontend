@@ -116,6 +116,7 @@ npm run test
 - [Node.js 설치 가이드](./Docs/SETUP_GUIDE.md) - Node.js 설치 및 환경 설정
 - [VSCode 설정 가이드](./Docs/VSCode_설정_가이드.md) - VSCode에서 프로젝트 실행 방법
 - [카카오맵 API 설정 가이드](./Docs/카카오맵_API_설정_가이드.md) - 카카오맵 API 401 오류 해결 방법
+- [CORS 오류 해결 가이드](./Docs/CORS_오류_해결_가이드.md) - 운영 환경 CORS 오류 해결 방법
 
 ## 🧪 테스트
 

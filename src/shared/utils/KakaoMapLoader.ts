@@ -44,7 +44,8 @@ export class KakaoMapLoader {
 
     // 스크립트 동적 로드
     console.log('카카오맵 스크립트 동적 로드 시작...');
-    const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
+    // services 라이브러리 사용을 위해 libraries=services 추가
+    const scriptUrl = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
     
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');

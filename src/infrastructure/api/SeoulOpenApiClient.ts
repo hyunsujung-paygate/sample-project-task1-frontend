@@ -68,7 +68,15 @@ export class SeoulOpenApiClient {
     }
 
     try {
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // CORS 모드 명시 (운영 환경에서 CORS 오류 발생 시 명확한 오류 메시지)
+        mode: 'cors',
+        credentials: 'omit',
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -149,6 +157,28 @@ export class SeoulOpenApiClient {
       throw new Error('API 응답 구조가 예상과 다릅니다.');
     } catch (error) {
       console.error('API 요청 중 오류 발생:', error);
+      
+      // CORS 오류인지 확인
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        const corsError = new Error(
+          `CORS 오류: 백엔드 서버에서 CORS 헤더가 설정되지 않았습니다.\n\n` +
+          `해결 방법:\n` +
+          `1. 백엔드 서버에 다음 CORS 헤더를 추가해야 합니다:\n` +
+          `   - Access-Control-Allow-Origin: ${window.location.origin}\n` +
+          `   - Access-Control-Allow-Methods: GET, POST, OPTIONS\n` +
+          `   - Access-Control-Allow-Headers: Content-Type\n\n` +
+          `2. 또는 백엔드 개발자에게 다음 도메인을 CORS 허용 목록에 추가 요청:\n` +
+          `   ${window.location.origin}\n\n` +
+          `요청 URL: ${url.toString()}`
+        );
+        console.error('CORS 오류 상세:', {
+          origin: window.location.origin,
+          targetUrl: url.toString(),
+          error: error
+        });
+        throw corsError;
+      }
+      
       if (error instanceof Error) {
         throw error;
       }

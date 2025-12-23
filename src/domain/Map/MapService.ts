@@ -1,4 +1,4 @@
-import { ParkingLot } from '../ParkingLot/ParkingLot';
+import { ParkingLot } from "../ParkingLot/ParkingLot";
 
 /**
  * 지도 서비스 인터페이스
@@ -11,14 +11,22 @@ export interface MapService {
    * @param latitude 초기 위도
    * @param longitude 초기 경도
    */
-  initializeMap(containerId: string, latitude: number, longitude: number): Promise<void>;
+  initializeMap(
+    containerId: string,
+    latitude: number,
+    longitude: number
+  ): Promise<void>;
 
   /**
    * 주차장 목록을 지도에 마커로 표시한다
    *
    * @param parkingLots 주차장 목록
+   * @param options 표시 옵션
    */
-  displayMarkers(parkingLots: ParkingLot[]): void;
+  displayMarkers(
+    parkingLots: ParkingLot[],
+    options?: { fitBounds?: boolean; setCenterOnSingle?: boolean }
+  ): void;
 
   /**
    * 지도에 표시된 모든 마커를 제거한다
@@ -36,5 +44,9 @@ export interface MapService {
    * 지도 이동 이벤트 리스너를 제거한다
    */
   removeBoundsChangedListener(): void;
-}
 
+  /**
+   * 내부 지도 인스턴스를 반환한다
+   */
+  getMap(): any;
+}
