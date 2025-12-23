@@ -74,11 +74,18 @@ rm -f package-lock.json 2>/dev/null || true
 
 # npm install 실행 (package-lock.json 재생성)
 echo "📦 npm install 실행 중..."
-npm install --verbose 2>&1 | head -100
+npm install 2>&1
 
-# 설치된 패키지 수 확인
-INSTALLED_COUNT=$(find node_modules -maxdepth 1 -type d 2>/dev/null | wc -l || echo "0")
-echo "📦 설치된 패키지 수: $INSTALLED_COUNT"
+# 설치 완료 확인
+echo "📦 npm install 완료 확인..."
+if [ -d "node_modules" ]; then
+  echo "✅ node_modules 폴더 생성 확인"
+  INSTALLED_COUNT=$(find node_modules -maxdepth 1 -type d 2>/dev/null | wc -l || echo "0")
+  echo "📦 설치된 패키지 수: $INSTALLED_COUNT"
+else
+  echo "❌ node_modules 폴더가 생성되지 않았습니다!"
+  exit 1
+fi
 
 # vite가 설치되었는지 확인
 if [ -f "node_modules/vite/package.json" ]; then
@@ -90,13 +97,15 @@ else
   echo "📋 node_modules/vite 폴더 확인:"
   ls -la node_modules/ | grep vite || echo "vite 폴더가 없습니다"
   echo "💡 vite를 명시적으로 설치합니다..."
-  npm install vite@^5.1.0 --save-dev
+  npm install vite@^5.1.0 --save-dev --force
   if [ -f "node_modules/vite/package.json" ]; then
     echo "✅ vite 명시적 설치 성공"
   else
     echo "❌ vite 명시적 설치도 실패했습니다!"
     echo "📋 npm list vite 실행:"
     npm list vite 2>&1 || true
+    echo "📋 npm ls 실행:"
+    npm ls 2>&1 | head -50 || true
     exit 1
   fi
 fi
