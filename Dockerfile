@@ -6,15 +6,18 @@ WORKDIR /app
 
 # Node.js 및 npm 버전 확인
 RUN node --version && npm --version
-# npm 업그레이드 (lockfileVersion 호환성 개선)
-RUN npm install -g npm@latest
-RUN npm --version
 
 # package.json과 package-lock.json 복사
 COPY package*.json ./
 
-# 의존성 설치
-RUN npm ci
+# 기존 node_modules 및 캐시 정리 (있다면)
+RUN rm -rf node_modules package-lock.json.lock 2>/dev/null || true
+RUN npm cache clean --force || true
+
+# 의존성 설치 (npm ci 실패 시 npm install로 재시도)
+# ENOTDIR 오류 방지를 위해 node_modules를 완전히 정리 후 재설치
+RUN rm -rf node_modules .npm 2>/dev/null || true && \
+    npm ci || (rm -rf node_modules && npm install)
 
 # 소스 코드 복사
 COPY . .

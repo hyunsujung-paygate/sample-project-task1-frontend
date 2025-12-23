@@ -24,7 +24,23 @@ Error: Node.js 18 이상이 필요합니다. 현재 버전: v14.21.3
 5. **저장** 클릭
 6. **빌드 재시작** 또는 **배포 재시작**
 
-#### 방법 2: Dockerfile 사용
+#### 방법 2: build.sh 사용 (권장)
+
+프로젝트에 `build.sh` 스크립트가 있습니다.
+
+1. Cloudtype 대시보드 접속
+2. 프로젝트 선택
+3. **설정** 또는 **Build Settings** 메뉴로 이동
+4. **빌드 방식** 또는 **Build Method**에서:
+   - **Custom Build** 또는 **Build Script** 선택
+   - **빌드 명령어** 또는 **Build Command**에 `sh build.sh` 입력
+5. **저장** 클릭
+6. **빌드 재시작** 또는 **배포 재시작**
+
+**⚠️ 중요**: Dockerfile이 있으면 Cloudtype이 자동으로 Dockerfile을 사용하려고 시도할 수 있습니다. 
+빌드 방식에서 **Custom Build** 또는 **Build Script**를 명시적으로 선택해야 합니다.
+
+#### 방법 3: Dockerfile 사용
 
 프로젝트에 `Dockerfile`이 있으면 Cloudtype이 자동으로 인식합니다.
 
@@ -32,7 +48,10 @@ Error: Node.js 18 이상이 필요합니다. 현재 버전: v14.21.3
 2. Cloudtype 대시보드에서 **빌드 방식**을 **Dockerfile**로 설정
 3. 빌드 재시작
 
-#### 방법 3: 환경 변수 설정
+**⚠️ 주의**: Dockerfile 사용 시 `ENOTDIR` 오류가 발생할 수 있습니다. 
+이 경우 `build.sh`를 사용하는 것을 권장합니다.
+
+#### 방법 4: 환경 변수 설정
 
 Cloudtype 대시보드에서:
 
@@ -41,7 +60,7 @@ Cloudtype 대시보드에서:
    - `NODE_VERSION=18`
    - 또는 `NVM_NODE_VERSION=18`
 
-#### 방법 4: 빌드 스크립트 수정
+#### 방법 5: 빌드 스크립트 수정
 
 `package.json`의 `prebuild` 스크립트가 Node.js 버전을 확인합니다.
 
