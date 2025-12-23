@@ -31,20 +31,29 @@ echo "✅ Node.js 버전 확인 완료: $(node --version)"
 echo "현재 npm 버전: $(npm --version)"
 echo "💡 npm 업그레이드는 건너뜁니다 (Node.js 18과 호환성 유지)"
 
-# package-lock.json 확인
+# package.json 확인
+echo "=== package.json 확인 ==="
+if [ -f "package.json" ]; then
+  echo "✅ package.json 존재 확인"
+  echo "📄 package.json 크기: $(ls -lh package.json | awk '{print $5}')"
+  # vite가 package.json에 있는지 확인
+  if grep -q '"vite"' package.json; then
+    echo "✅ vite가 package.json에 포함되어 있습니다"
+  else
+    echo "❌ vite가 package.json에 없습니다!"
+  fi
+else
+  echo "❌ package.json이 없습니다!"
+  exit 1
+fi
+
+# package-lock.json 확인 (참고용)
 echo "=== package-lock.json 확인 ==="
 if [ -f "package-lock.json" ]; then
   echo "✅ package-lock.json 존재 확인"
   echo "📄 package-lock.json 크기: $(ls -lh package-lock.json | awk '{print $5}')"
-  echo "📄 package-lock.json 첫 줄: $(head -1 package-lock.json)"
-  # vite가 package-lock.json에 있는지 확인
-  if grep -q '"vite"' package-lock.json; then
-    echo "✅ vite가 package-lock.json에 포함되어 있습니다"
-  else
-    echo "⚠️ vite가 package-lock.json에 없습니다!"
-  fi
 else
-  echo "⚠️ package-lock.json이 없습니다. npm install을 사용합니다."
+  echo "ℹ️ package-lock.json이 없습니다. npm install이 새로 생성합니다."
 fi
 
 # 의존성 설치
@@ -52,13 +61,29 @@ echo "=== 의존성 설치 ==="
 # node_modules 완전히 정리
 rm -rf node_modules 2>/dev/null || true
 
-# npm install을 기본으로 사용 (Docker 빌드 컨텍스트에서 더 안정적)
+# package-lock.json과 package.json 동기화 문제 해결
+# package-lock.json이 package.json과 맞지 않을 수 있으므로 삭제 후 재생성
+echo "📦 package-lock.json 삭제 후 npm install 실행 (동기화 문제 해결)..."
+rm -f package-lock.json 2>/dev/null || true
+
+# npm install 실행 (package-lock.json 재생성)
 echo "📦 npm install 실행 중..."
 npm install
 
 # 설치된 패키지 수 확인
 INSTALLED_COUNT=$(find node_modules -maxdepth 1 -type d 2>/dev/null | wc -l || echo "0")
 echo "📦 설치된 패키지 수: $INSTALLED_COUNT"
+
+# vite가 설치되었는지 확인
+if [ -f "node_modules/vite/package.json" ]; then
+  echo "✅ vite 패키지가 설치되었습니다"
+  VITE_VERSION=$(grep '"version"' node_modules/vite/package.json | head -1 | cut -d'"' -f4)
+  echo "📦 vite 버전: $VITE_VERSION"
+else
+  echo "❌ vite 패키지가 설치되지 않았습니다!"
+  echo "📋 node_modules/vite 폴더 확인:"
+  ls -la node_modules/ | grep vite || echo "vite 폴더가 없습니다"
+fi
 
 # 설치된 패키지 확인
 echo "=== 설치된 패키지 확인 ==="
