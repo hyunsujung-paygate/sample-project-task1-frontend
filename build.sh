@@ -36,11 +36,17 @@ echo "=== package.json 확인 ==="
 if [ -f "package.json" ]; then
   echo "✅ package.json 존재 확인"
   echo "📄 package.json 크기: $(ls -lh package.json | awk '{print $5}')"
+  echo "📋 package.json 내용 (일부):"
+  head -50 package.json
   # vite가 package.json에 있는지 확인
   if grep -q '"vite"' package.json; then
     echo "✅ vite가 package.json에 포함되어 있습니다"
+    # devDependencies 섹션 확인
+    echo "📋 devDependencies 섹션:"
+    grep -A 20 '"devDependencies"' package.json
   else
     echo "❌ vite가 package.json에 없습니다!"
+    exit 1
   fi
 else
   echo "❌ package.json이 없습니다!"
@@ -68,7 +74,7 @@ rm -f package-lock.json 2>/dev/null || true
 
 # npm install 실행 (package-lock.json 재생성)
 echo "📦 npm install 실행 중..."
-npm install
+npm install --verbose 2>&1 | head -100
 
 # 설치된 패키지 수 확인
 INSTALLED_COUNT=$(find node_modules -maxdepth 1 -type d 2>/dev/null | wc -l || echo "0")
@@ -83,6 +89,16 @@ else
   echo "❌ vite 패키지가 설치되지 않았습니다!"
   echo "📋 node_modules/vite 폴더 확인:"
   ls -la node_modules/ | grep vite || echo "vite 폴더가 없습니다"
+  echo "💡 vite를 명시적으로 설치합니다..."
+  npm install vite@^5.1.0 --save-dev
+  if [ -f "node_modules/vite/package.json" ]; then
+    echo "✅ vite 명시적 설치 성공"
+  else
+    echo "❌ vite 명시적 설치도 실패했습니다!"
+    echo "📋 npm list vite 실행:"
+    npm list vite 2>&1 || true
+    exit 1
+  fi
 fi
 
 # 설치된 패키지 확인
