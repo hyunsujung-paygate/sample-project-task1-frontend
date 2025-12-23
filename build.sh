@@ -40,5 +40,23 @@ npm ci || npm install
 echo "=== 빌드 실행 ==="
 npm run build
 
+# 빌드 결과 확인
+echo "=== 빌드 결과 확인 ==="
+if [ -d "dist" ]; then
+  echo "✅ dist 폴더 생성 확인"
+  echo "📁 dist 폴더 내용:"
+  ls -la dist/
+  echo "📄 index.html 존재 여부:"
+  if [ -f "dist/index.html" ]; then
+    echo "✅ index.html 파일 확인됨"
+  else
+    echo "❌ index.html 파일이 없습니다!"
+    exit 1
+  fi
+else
+  echo "❌ dist 폴더가 생성되지 않았습니다!"
+  exit 1
+fi
+
 echo "=== 빌드 완료 ==="
 
