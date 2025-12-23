@@ -9,8 +9,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "prebuild": "node -e \"const v=parseInt(process.version.slice(1)); if(v < 18) { console.error('❌ Node.js 18 이상이 필요합니다. 현재 버전:', process.version); console.error('💡 Cloudtype 대시보드에서 Node.js 버전을 18로 설정해주세요.'); process.exit(1); } else { console.log('✅ Node.js 버전 확인:', process.version); }\"",
+    "prebuild": "node -e \"const v=parseInt(process.version.slice(1)); if(v < 18) { console.error('❌ Node.js 18 이상이 필요합니다. 현재 버전:', process.version); console.error('💡 Cloudtype 대시보드에서 Node.js 버전을 18로 설정하거나, nvm을 사용하여 Node.js 18을 설치해주세요.'); process.exit(1); } else { console.log('✅ Node.js 버전 확인:', process.version); }\"",
     "build": "npx vue-tsc --noEmit && vite build",
+    "build:cloudtype": "npm run build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
