@@ -1,5 +1,5 @@
 # Node.js 18 LTS 버전 사용
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -19,9 +19,6 @@ COPY . .
 # 빌드 실행
 RUN npm run build
 
-# 프로덕션 스테이지 (필요한 경우)
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# 빌드 결과물 확인
+RUN ls -la dist/
 

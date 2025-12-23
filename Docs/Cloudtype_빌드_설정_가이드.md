@@ -5,20 +5,24 @@
 ### 문제
 ```
 Unexpected token '??='
-npm ERR! code ELIFECYCLE
+Error: Node.js 18 이상이 필요합니다. 현재 버전: v14.21.3
 ```
 
 이 오류는 Node.js 버전이 18 미만일 때 발생합니다.
 
 ### 해결 방법
 
-#### 방법 1: Cloudtype 대시보드에서 설정
+#### 방법 1: Cloudtype 대시보드에서 설정 (필수)
+
+**⚠️ 중요: 이 방법이 가장 확실합니다!**
 
 1. [Cloudtype 대시보드](https://cloudtype.io/) 접속
 2. 프로젝트 선택
 3. **설정** 또는 **Build Settings** 메뉴로 이동
-4. **Node.js 버전**을 **18** 또는 **18.x**로 설정
-5. 저장 후 빌드 재시작
+4. **Node.js 버전** 또는 **Runtime Version**을 **18** 또는 **18.x**로 설정
+   - 현재 v14.21.3이 사용 중이므로 반드시 변경 필요
+5. **저장** 클릭
+6. **빌드 재시작** 또는 **배포 재시작**
 
 #### 방법 2: Dockerfile 사용
 
