@@ -27,9 +27,14 @@ fi
 
 echo "✅ Node.js 버전 확인 완료: $(node --version)"
 
+# npm 버전 확인 및 업그레이드
+echo "현재 npm 버전: $(npm --version)"
+npm install -g npm@latest || echo "npm 업그레이드 실패 (계속 진행)"
+echo "업그레이드 후 npm 버전: $(npm --version)"
+
 # 의존성 설치
 echo "=== 의존성 설치 ==="
-npm ci
+npm ci || npm install
 
 # 빌드 실행
 echo "=== 빌드 실행 ==="

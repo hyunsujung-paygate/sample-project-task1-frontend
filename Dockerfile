@@ -4,8 +4,11 @@ FROM node:18-alpine
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Node.js 버전 확인
+# Node.js 및 npm 버전 확인
 RUN node --version && npm --version
+# npm 업그레이드 (lockfileVersion 호환성 개선)
+RUN npm install -g npm@latest
+RUN npm --version
 
 # package.json과 package-lock.json 복사
 COPY package*.json ./
