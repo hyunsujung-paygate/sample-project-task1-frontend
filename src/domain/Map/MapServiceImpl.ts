@@ -146,8 +146,8 @@ export class MapServiceImpl implements MapService {
     // 기존 리스너 제거
     this.removeBoundsChangedListener();
 
-    // 디바운싱을 위한 타이머
-    let debounceTimer: NodeJS.Timeout | null = null;
+    // 디바운싱을 위한 타이머 (브라우저 환경에서는 setTimeout이 number를 반환)
+    let debounceTimer: number | null = null;
     const DEBOUNCE_DELAY = 500; // 500ms 디바운스
 
     // 지도 이동 이벤트 리스너 등록
