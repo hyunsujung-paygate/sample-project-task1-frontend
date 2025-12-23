@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "서울시 공영주차장 안내 웹 애플리케이션",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "npx vue-tsc --noEmit && vite build",
