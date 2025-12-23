@@ -52,7 +52,7 @@ export class KakaoMapLoader {
       script.src = scriptUrl;
       script.async = false; // 동기 로드로 변경하여 순서 보장
       script.defer = false;
-      script.crossOrigin = 'anonymous';
+      // crossOrigin 제거 (카카오맵 API는 CORS 정책이 다를 수 있음)
 
       script.onload = () => {
         console.log('카카오맵 스크립트 로드 성공');
@@ -97,15 +97,86 @@ export class KakaoMapLoader {
           url: scriptUrl,
           apiKey: apiKey.substring(0, 8) + '...',
           userAgent: navigator.userAgent,
-          location: window.location.href
+          location: window.location.href,
+          origin: window.location.origin,
+          hostname: window.location.hostname
         };
         console.error('오류 상세 정보:', errorDetails);
         
-        reject(
-          new Error(
-            `카카오맵 스크립트 로드 실패. 브라우저 개발자 도구의 네트워크 탭에서 ${scriptUrl} 파일의 로드 상태를 확인해주세요. (상태 코드: 403은 API 키/도메인 문제, 기타는 네트워크 문제)`
-          )
-        );
+        // fetch를 사용하여 상태 코드 확인
+        fetch(scriptUrl, { method: 'HEAD', mode: 'no-cors' })
+          .then(() => {
+            console.log('fetch HEAD 요청 성공 (상태 코드 확인 불가)');
+          })
+          .catch((fetchError) => {
+            console.error('fetch HEAD 요청 실패:', fetchError);
+          });
+        
+        // 상태 코드별 오류 메시지
+        const getErrorMessage = (statusCode?: number) => {
+          if (statusCode === 401) {
+            return `401 Unauthorized 오류
+
+이 오류는 다음 중 하나의 문제일 수 있습니다:
+
+1. ⚠️ 도메인 미등록 (가장 흔한 원인)
+   현재 도메인: ${window.location.origin}
+   
+   해결 방법:
+   - 카카오 개발자 콘솔(https://developers.kakao.com/) 접속
+   - 내 애플리케이션 선택
+   - 앱 설정 > 플랫폼 > Web 플랫폼 등록
+   - 사이트 도메인에 "${window.location.origin}" 정확히 입력
+     (프로토콜 포함, 마지막 / 없이)
+   - 저장 후 10분 정도 대기
+
+2. ⚠️ API 키 오류
+   현재 사용 중인 키: ${apiKey.substring(0, 8)}...
+   
+   해결 방법:
+   - 카카오 개발자 콘솔 > 앱 키 메뉴에서 JavaScript 키 확인
+   - AppConfig.ts 파일의 KAKAO_MAP_API_KEY 값과 일치하는지 확인
+   - 키가 다르면 AppConfig.ts 파일 수정
+
+3. ⚠️ 카카오맵 API 미활성화
+   해결 방법:
+   - 카카오 개발자 콘솔 > 제품 설정 > 카카오맵 API 활성화 확인
+
+4. ⚠️ 애플리케이션 상태
+   해결 방법:
+   - 카카오 개발자 콘솔 > 앱 설정 > 일반
+   - 앱 상태가 "서비스 중"인지 확인
+
+상세 가이드: Docs/카카오맵_API_설정_가이드.md 파일 참조`;
+          } else if (statusCode === 403) {
+            return `403 Forbidden 오류
+
+도메인이 등록되지 않았거나 API 키가 잘못되었습니다.
+위의 401 오류 해결 방법을 참조하세요.`;
+          } else {
+            return `카카오맵 스크립트 로드 실패 (상태 코드: ${statusCode || '알 수 없음'})
+
+가능한 원인:
+1. 도메인 미등록: ${window.location.origin}
+2. API 키 오류: ${apiKey.substring(0, 8)}...
+3. 네트워크 문제
+
+브라우저 개발자 도구(F12) > 네트워크 탭에서 상태 코드를 확인하세요.
+상세 가이드: Docs/카카오맵_API_설정_가이드.md`;
+          }
+        };
+        
+        // 실제 상태 코드를 확인하기 위해 fetch 시도
+        fetch(scriptUrl)
+          .then((response) => {
+            const statusCode = response.status;
+            console.error(`HTTP 상태 코드: ${statusCode}`);
+            reject(new Error(getErrorMessage(statusCode)));
+          })
+          .catch(() => {
+            // fetch 실패 시 일반 오류 메시지
+            reject(new Error(getErrorMessage()));
+          });
       };
 
       document.head.appendChild(script);

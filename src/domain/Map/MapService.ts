@@ -24,5 +24,17 @@ export interface MapService {
    * 지도에 표시된 모든 마커를 제거한다
    */
   clearMarkers(): void;
+
+  /**
+   * 지도 이동 이벤트 리스너를 등록한다
+   *
+   * @param callback 지도 이동 시 호출될 콜백 함수
+   */
+  onBoundsChanged(callback: () => void): void;
+
+  /**
+   * 지도 이동 이벤트 리스너를 제거한다
+   */
+  removeBoundsChangedListener(): void;
 }
 

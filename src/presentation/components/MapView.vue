@@ -74,9 +74,11 @@ const search = async (): Promise<void> => {
     // 마커 초기화
     mapService.clearMarkers();
 
-    // 검색 실행
+    // 검색 실행 (지도 초기화 건너뛰기 - 이미 초기화되어 있음)
+    // 검색 결과가 있으면 해당 위치로 지도가 자동으로 이동됨 (displayMarkers에서 setBounds 호출)
     await displayMapMarkersUseCase.execute(
-      Object.keys(params).length > 0 ? params : undefined
+      Object.keys(params).length > 0 ? params : undefined,
+      true // skipInitialization: true
     );
   } catch (error) {
     console.error('검색 중 오류 발생:', error);
@@ -106,6 +108,61 @@ const reset = async (): Promise<void> => {
   }
 };
 
+/**
+ * 지도 이동 시 현재 보이는 영역의 주차장을 다시 로드한다
+ */
+const loadParkingLotsOnMapMove = async (): Promise<void> => {
+  if (isLoading.value) {
+    return; // 이미 로딩 중이면 무시
+  }
+
+  // 검색 조건이 있으면 검색 조건 유지, 없으면 전체 조회
+  const params: ParkingLotSearchParams = {};
+  if (searchParams.value.district?.trim()) {
+    params.district = searchParams.value.district.trim();
+  }
+  if (searchParams.value.dong?.trim()) {
+    params.dong = searchParams.value.dong.trim();
+  }
+
+  try {
+    // 마커만 업데이트 (지도는 이미 초기화되어 있음)
+    const parkingLots = Object.keys(params).length > 0
+      ? await parkingLotRepository.findBySearchParams(params)
+      : await parkingLotRepository.findAll();
+    
+    // 현재 지도 영역 내의 주차장만 필터링
+    const kakao = (window as any).kakao;
+    if (kakao && kakao.maps && mapService) {
+      const map = (mapService as any).getMap?.() || (mapService as any).map;
+      if (map) {
+        const bounds = map.getBounds();
+        if (bounds) {
+          const sw = bounds.getSouthWest(); // 남서쪽 좌표
+          const ne = bounds.getNorthEast(); // 북동쪽 좌표
+          
+          const filteredParkingLots = parkingLots.filter((lot) => {
+            return (
+              lot.latitude >= sw.getLat() &&
+              lot.latitude <= ne.getLat() &&
+              lot.longitude >= sw.getLng() &&
+              lot.longitude <= ne.getLng()
+            );
+          });
+          
+          mapService.displayMarkers(filteredParkingLots);
+          return;
+        }
+      }
+    }
+    
+    // bounds를 가져올 수 없으면 전체 표시
+    mapService.displayMarkers(parkingLots);
+  } catch (error) {
+    console.error('지도 이동 시 주차장 로드 오류:', error);
+  }
+};
+
 onMounted(async () => {
   isLoading.value = true;
   try {
@@ -115,7 +172,14 @@ onMounted(async () => {
       console.log('카카오맵 API 로드 중...');
       await KakaoMapLoader.load();
     }
+    
+    // 초기 주차장 로드
     await displayMapMarkersUseCase.execute();
+    
+    // 지도 이동 이벤트 리스너 등록
+    mapService.onBoundsChanged(() => {
+      loadParkingLotsOnMapMove();
+    });
   } catch (error) {
     console.error('지도 초기화 중 오류 발생:', error);
     const errorMessage =
