@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"if(parseInt(process.version.slice(1)) < 18) throw new Error('Node.js 18 이상이 필요합니다. 현재 버전: ' + process.version)\"",
     "build": "npx vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
