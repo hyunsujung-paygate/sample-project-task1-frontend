@@ -31,9 +31,40 @@ echo "✅ Node.js 버전 확인 완료: $(node --version)"
 echo "현재 npm 버전: $(npm --version)"
 echo "💡 npm 업그레이드는 건너뜁니다 (Node.js 18과 호환성 유지)"
 
+# package-lock.json 확인
+echo "=== package-lock.json 확인 ==="
+if [ -f "package-lock.json" ]; then
+  echo "✅ package-lock.json 존재 확인"
+else
+  echo "⚠️ package-lock.json이 없습니다. npm install을 사용합니다."
+fi
+
 # 의존성 설치
 echo "=== 의존성 설치 ==="
-npm ci || npm install
+if [ -f "package-lock.json" ]; then
+  if ! npm ci; then
+    echo "⚠️ npm ci 실패, npm install로 재시도..."
+    npm install
+  fi
+else
+  echo "📦 npm install 실행..."
+  npm install
+fi
+
+# 설치된 패키지 확인
+echo "=== 설치된 패키지 확인 ==="
+if [ ! -f "node_modules/.bin/vite" ]; then
+  echo "❌ vite가 설치되지 않았습니다!"
+  echo "📦 node_modules 내용 확인:"
+  ls -la node_modules/.bin/ 2>/dev/null || echo "node_modules/.bin 폴더가 없습니다"
+  echo "💡 npm install을 다시 시도합니다..."
+  npm install
+  if [ ! -f "node_modules/.bin/vite" ]; then
+    echo "❌ vite 설치 실패! package.json을 확인해주세요."
+    exit 1
+  fi
+fi
+echo "✅ vite 설치 확인됨"
 
 # 빌드 실행
 echo "=== 빌드 실행 ==="
