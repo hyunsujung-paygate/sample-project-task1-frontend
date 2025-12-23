@@ -191,46 +191,132 @@ export class KakaoMapLoader {
    */
   private static waitForKakaoMaps(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const kakao = (window as any).kakao;
+      // kakao 객체가 준비될 때까지 대기
+      let checkAttempts = 0;
+      const maxCheckAttempts = 100; // 10초 대기
       
-      if (!kakao || !kakao.maps) {
-        reject(new Error('카카오맵 객체를 찾을 수 없습니다.'));
-        return;
-      }
+      const checkKakaoReady = setInterval(() => {
+        checkAttempts++;
+        const kakao = (window as any).kakao;
+        
+        if (kakao && kakao.maps) {
+          clearInterval(checkKakaoReady);
+          this.initializeKakaoMaps(resolve, reject);
+        } else if (checkAttempts >= maxCheckAttempts) {
+          clearInterval(checkKakaoReady);
+          console.error('카카오맵 객체를 찾을 수 없습니다');
+          console.error('window.kakao:', kakao);
+          reject(new Error('카카오맵 객체를 찾을 수 없습니다. 스크립트가 로드되었지만 kakao.maps 객체가 생성되지 않았습니다.'));
+        }
+      }, 100);
+    });
+  }
 
-      // readyState 확인
-      if (kakao.maps.readyState === 2) {
-        // 이미 로드 완료
-        console.log('카카오맵 API 이미 로드 완료 상태');
-        this.loaded = true;
-        resolve();
-        return;
-      }
+  /**
+   * 카카오맵 API를 초기화한다
+   *
+   * @param resolve Promise resolve 함수
+   * @param reject Promise reject 함수
+   */
+  private static initializeKakaoMaps(
+    resolve: () => void,
+    reject: (error: Error) => void
+  ): void {
+    const kakao = (window as any).kakao;
+    
+    if (!kakao || !kakao.maps) {
+      reject(new Error('카카오맵 객체를 찾을 수 없습니다.'));
+      return;
+    }
 
+    console.log('카카오맵 maps 객체 발견');
+    console.log('readyState:', kakao.maps.readyState);
+    console.log('kakao.maps 타입:', typeof kakao.maps);
+    console.log('kakao.maps.load 타입:', typeof kakao.maps.load);
+
+    // readyState 확인
+    if (kakao.maps.readyState === 2) {
+      // 이미 로드 완료
+      console.log('✅ 카카오맵 API 이미 로드 완료 상태');
+      this.loaded = true;
+      resolve();
+      return;
+    }
+
+    // readyState가 0 (로드 전) 또는 1 (로딩 중)인 경우
+    if (kakao.maps.readyState === 0 || kakao.maps.readyState === 1) {
       console.log('카카오맵 maps 객체 발견, load() 호출...');
       console.log('현재 readyState:', kakao.maps.readyState);
 
       try {
-        // kakao.maps.load() 호출
-        kakao.maps.load(() => {
-          console.log('카카오맵 API 초기화 완료');
+        // kakao.maps.load()가 함수인지 확인
+        if (typeof kakao.maps.load !== 'function') {
+          console.error('kakao.maps.load가 함수가 아닙니다:', typeof kakao.maps.load);
+          // load()가 없어도 maps 객체가 있으면 사용 가능할 수 있음
+          console.log('⚠️ load() 함수가 없지만 maps 객체가 있으므로 계속 진행...');
           this.loaded = true;
           resolve();
+          return;
+        }
+
+        let loadCompleted = false;
+        
+        // kakao.maps.load() 호출
+        kakao.maps.load(() => {
+          if (!loadCompleted) {
+            loadCompleted = true;
+            console.log('✅ 카카오맵 API 초기화 완료');
+            this.loaded = true;
+            resolve();
+          }
         });
 
-        // 타임아웃 설정 (10초)
+        // 타임아웃 설정 (15초로 증가)
         setTimeout(() => {
-          if (!this.loaded) {
-            console.error('카카오맵 API 초기화 타임아웃');
+          if (!loadCompleted && !this.loaded) {
+            console.error('⚠️ 카카오맵 API 초기화 타임아웃');
             console.error('readyState:', kakao.maps.readyState);
-            reject(new Error('카카오맵 API 초기화 타임아웃 (10초)'));
+            console.error('loadCompleted:', loadCompleted);
+            
+            // 타임아웃이 발생해도 maps 객체가 있으면 사용 가능할 수 있음
+            if (kakao.maps && typeof kakao.maps.Map === 'function') {
+              console.log('⚠️ 타임아웃 발생했지만 Map 생성자가 있으므로 계속 진행...');
+              this.loaded = true;
+              resolve();
+            } else {
+              reject(new Error('카카오맵 API 초기화 타임아웃 (15초). Map 생성자를 찾을 수 없습니다.'));
+            }
           }
-        }, 10000);
+        }, 15000);
       } catch (error) {
-        console.error('카카오맵 초기화 중 오류:', error);
-        reject(new Error(`카카오맵 초기화 실패: ${error}`));
+        console.error('❌ 카카오맵 초기화 중 오류:', error);
+        console.error('오류 상세:', {
+          error,
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
+        
+        // 오류가 발생해도 maps 객체가 있으면 사용 가능할 수 있음
+        if (kakao.maps && typeof kakao.maps.Map === 'function') {
+          console.log('⚠️ 오류 발생했지만 Map 생성자가 있으므로 계속 진행...');
+          this.loaded = true;
+          resolve();
+        } else {
+          reject(new Error(`카카오맵 초기화 실패: ${error instanceof Error ? error.message : String(error)}`));
+        }
       }
-    });
+    } else {
+      // 예상치 못한 readyState
+      console.warn('⚠️ 예상치 못한 readyState:', kakao.maps.readyState);
+      // readyState가 이상해도 maps 객체가 있으면 사용 가능할 수 있음
+      if (kakao.maps && typeof kakao.maps.Map === 'function') {
+        console.log('⚠️ readyState가 이상하지만 Map 생성자가 있으므로 계속 진행...');
+        this.loaded = true;
+        resolve();
+      } else {
+        reject(new Error(`카카오맵 API 초기화 실패: 예상치 못한 readyState (${kakao.maps.readyState})`));
+      }
+    }
   }
 }
 
