@@ -1,4 +1,7 @@
-import { ParkingLotRepository } from '@/domain/ParkingLot/ParkingLotRepository';
+import {
+  ParkingLotRepository,
+  ParkingLotSearchParams,
+} from '@/domain/ParkingLot/ParkingLotRepository';
 import { ParkingLot } from '@/domain/ParkingLot/ParkingLot';
 import { SeoulOpenApiClient } from '../api/SeoulOpenApiClient';
 import { ParkingLotDto } from '@/application/dto/ParkingLotDto';
@@ -19,7 +22,22 @@ export class ParkingLotRepositoryImpl implements ParkingLotRepository {
    * @returns 주차장 목록
    */
   public async findAll(): Promise<ParkingLot[]> {
-    const parkingLotDtos = await this.seoulOpenApiClient.getParkingLots(1, 1000);
+    const parkingLotDtos = await this.seoulOpenApiClient.getParkingLots();
+    return this.toDomainEntities(parkingLotDtos);
+  }
+
+  /**
+   * 검색 조건에 맞는 주차장을 조회한다
+   *
+   * @param searchParams 검색 파라미터
+   * @returns 주차장 목록
+   */
+  public async findBySearchParams(
+    searchParams?: ParkingLotSearchParams
+  ): Promise<ParkingLot[]> {
+    const parkingLotDtos = await this.seoulOpenApiClient.getParkingLots(
+      searchParams
+    );
     return this.toDomainEntities(parkingLotDtos);
   }
 
@@ -29,7 +47,7 @@ export class ParkingLotRepositoryImpl implements ParkingLotRepository {
    * @param id 주차장 ID
    * @returns 주차장
    */
-  public async findById(id: string): Promise<ParkingLot | null> {
+  public async findById(id: number): Promise<ParkingLot | null> {
     const parkingLots = await this.findAll();
     return parkingLots.find((lot) => lot.id === id) || null;
   }
@@ -49,8 +67,11 @@ export class ParkingLotRepositoryImpl implements ParkingLotRepository {
           dto.address,
           dto.latitude,
           dto.longitude,
-          dto.capacity,
-          dto.operatingHours
+          dto.totalSpaces,
+          dto.availableSpaces,
+          dto.type,
+          dto.operatingHours,
+          dto.phoneNumber
         )
     );
   }

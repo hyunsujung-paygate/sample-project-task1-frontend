@@ -2,12 +2,15 @@
  * 주차장 데이터 전송 객체
  */
 export interface ParkingLotDto {
-  id: string;
+  id: number;
   name: string;
   address: string;
   latitude: number;
   longitude: number;
-  capacity?: number;
-  operatingHours?: string;
+  totalSpaces: number;
+  availableSpaces: number | null;
+  type: string;
+  operatingHours: string | null;
+  phoneNumber: string | null;
 }
 

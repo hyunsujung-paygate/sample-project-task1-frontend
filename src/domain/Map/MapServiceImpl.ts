@@ -6,6 +6,8 @@ import { ParkingLot } from '../ParkingLot/ParkingLot';
  */
 export class MapServiceImpl implements MapService {
   private map: any = null;
+  private markers: any[] = [];
+  private infoWindows: any[] = [];
 
   /**
    * 지도를 초기화한다
@@ -53,6 +55,11 @@ export class MapServiceImpl implements MapService {
       throw new Error('카카오맵 API가 로드되지 않았습니다.');
     }
 
+    // 기존 마커 제거
+    this.clearMarkers();
+
+    const bounds = new kakao.maps.LatLngBounds();
+
     parkingLots.forEach((parkingLot) => {
       if (!parkingLot.isValidLocation()) {
         return;
@@ -68,15 +75,47 @@ export class MapServiceImpl implements MapService {
       });
 
       marker.setMap(this.map);
+      this.markers.push(marker);
+
+      bounds.extend(markerPosition);
+
+      const infoContent = `
+        <div style="padding:10px;min-width:200px;">
+          <h3 style="margin:0 0 8px 0;font-size:14px;font-weight:bold;">${parkingLot.name}</h3>
+          <p style="margin:0 0 4px 0;font-size:12px;color:#666;">${parkingLot.address}</p>
+          ${parkingLot.totalSpaces > 0 ? `<p style="margin:0 0 4px 0;font-size:12px;">총 주차면수: ${parkingLot.totalSpaces}</p>` : ''}
+          ${parkingLot.availableSpaces !== null ? `<p style="margin:0 0 4px 0;font-size:12px;">가용 주차면수: ${parkingLot.availableSpaces}</p>` : ''}
+          ${parkingLot.phoneNumber ? `<p style="margin:0;font-size:12px;">전화번호: ${parkingLot.phoneNumber}</p>` : ''}
+        </div>
+      `;
 
       const infoWindow = new kakao.maps.InfoWindow({
-        content: `<div style="padding:5px;">${parkingLot.name}</div>`,
+        content: infoContent,
       });
 
+      this.infoWindows.push(infoWindow);
+
       kakao.maps.event.addListener(marker, 'click', () => {
+        // 다른 정보창 닫기
+        this.infoWindows.forEach((iw) => iw.close());
         infoWindow.open(this.map, marker);
       });
     });
+
+    // 마커가 있을 경우 지도 범위 조정
+    if (this.markers.length > 0) {
+      this.map.setBounds(bounds);
+    }
+  }
+
+  /**
+   * 지도에 표시된 모든 마커를 제거한다
+   */
+  public clearMarkers(): void {
+    this.markers.forEach((marker) => marker.setMap(null));
+    this.infoWindows.forEach((infoWindow) => infoWindow.close());
+    this.markers = [];
+    this.infoWindows = [];
   }
 }
 

@@ -1,0 +1,132 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& { $env:PATH = 'C:\\Program Files\\nodejs;' + $env:PATH; npm run dev }"
+      ],
+      "problemMatcher": [],
+      "label": "npm: dev",
+      "detail": "개발 서버 실행",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "default"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& { $env:PATH = 'C:\\Program Files\\nodejs;' + $env:PATH; npm run build; exit $LASTEXITCODE }"
+      ],
+      "problemMatcher": ["$tsc"],
+      "label": "npm: build",
+      "detail": "프로덕션 빌드"
+    },
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& { $env:PATH = 'C:\\Program Files\\nodejs;' + $env:PATH; npm run preview; exit $LASTEXITCODE }"
+      ],
+      "problemMatcher": [],
+      "label": "npm: preview",
+      "detail": "빌드 결과 미리보기"
+    },
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& { $env:PATH = 'C:\\Program Files\\nodejs;' + $env:PATH; npm run test; exit $LASTEXITCODE }"
+      ],
+      "problemMatcher": [],
+      "label": "npm: test",
+      "detail": "테스트 실행"
+    },
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& { $env:PATH = 'C:\\Program Files\\nodejs;' + $env:PATH; npm run lint; exit $LASTEXITCODE }"
+      ],
+      "problemMatcher": [],
+      "label": "npm: lint",
+      "detail": "코드 린팅"
+    },
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& { $env:PATH = 'C:\\Program Files\\nodejs;' + $env:PATH; npm run format; exit $LASTEXITCODE }"
+      ],
+      "problemMatcher": [],
+      "label": "npm: format",
+      "detail": "코드 포맷팅"
+    },
+    {
+      "type": "shell",
+      "command": "C:\\Program Files\\nodejs\\npm.cmd",
+      "args": ["run", "dev"],
+      "problemMatcher": [],
+      "label": "웹 서버 실행 (개발)",
+      "detail": "개발 서버를 실행하여 웹 브라우저에서 확인 (http://localhost:3000)",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "default"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\build-and-preview.ps1"
+      ],
+      "problemMatcher": ["$tsc"],
+      "label": "웹 서버 실행 (프로덕션)",
+      "detail": "빌드 후 프로덕션 버전을 웹 브라우저에서 확인",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "default"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}
+

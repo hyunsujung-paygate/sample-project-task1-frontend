@@ -3,13 +3,16 @@
  */
 export class ParkingLot {
   constructor(
-    public readonly id: string,
+    public readonly id: number,
     public readonly name: string,
     public readonly address: string,
     public readonly latitude: number,
     public readonly longitude: number,
-    public readonly capacity?: number,
-    public readonly operatingHours?: string
+    public readonly totalSpaces: number,
+    public readonly availableSpaces: number | null,
+    public readonly type: string,
+    public readonly operatingHours: string | null,
+    public readonly phoneNumber: string | null
   ) {}
 
   /**

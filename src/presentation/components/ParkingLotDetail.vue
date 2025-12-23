@@ -3,11 +3,17 @@
     <h2>{{ parkingLot.name }}</h2>
     <div class="detail-info">
       <p><strong>주소:</strong> {{ parkingLot.address }}</p>
-      <p v-if="parkingLot.capacity">
-        <strong>수용 대수:</strong> {{ parkingLot.capacity }}대
+      <p v-if="parkingLot.totalSpaces > 0">
+        <strong>총 주차면수:</strong> {{ parkingLot.totalSpaces }}대
+      </p>
+      <p v-if="parkingLot.availableSpaces !== null">
+        <strong>가용 주차면수:</strong> {{ parkingLot.availableSpaces }}대
       </p>
       <p v-if="parkingLot.operatingHours">
         <strong>운영 시간:</strong> {{ parkingLot.operatingHours }}
+      </p>
+      <p v-if="parkingLot.phoneNumber">
+        <strong>전화번호:</strong> {{ parkingLot.phoneNumber }}
       </p>
     </div>
     <button @click="close">닫기</button>
@@ -15,7 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import { ParkingLot } from '@/domain/ParkingLot/ParkingLot';
 
 /**

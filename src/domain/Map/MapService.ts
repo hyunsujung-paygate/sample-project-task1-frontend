@@ -19,5 +19,10 @@ export interface MapService {
    * @param parkingLots 주차장 목록
    */
   displayMarkers(parkingLots: ParkingLot[]): void;
+
+  /**
+   * 지도에 표시된 모든 마커를 제거한다
+   */
+  clearMarkers(): void;
 }
 

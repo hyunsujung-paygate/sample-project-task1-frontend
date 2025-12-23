@@ -1,10 +1,14 @@
+import { AppConfig } from './AppConfig';
+
 /**
  * API 관련 상수
  */
 export class ApiConstants {
-  public static readonly SEOUL_OPEN_API_BASE_URL = 'https://data.seoul.go.kr';
-  public static readonly SEOUL_SERVICE_NAME = 'TbPublicWifiInfo';
-  public static readonly SEOUL_SERVICE_ID = '1';
-  public static readonly KAKAO_MAP_API_KEY = import.meta.env.VITE_KAKAO_MAP_KEY || '';
+  public static readonly API_SERVER_BASE_URL =
+    'https://port-0-sample-project-task1-backend-mjghfzfo9b552830.sel3.cloudtype.app';
+  public static readonly PARKING_LOTS_API_PATH = '/api/v1/parking-lots';
+  public static readonly SEOUL_CENTER_LATITUDE = 37.5665;
+  public static readonly SEOUL_CENTER_LONGITUDE = 126.978;
+  public static readonly KAKAO_MAP_API_KEY = AppConfig.KAKAO_MAP_API_KEY;
 }
 
