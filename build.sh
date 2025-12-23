@@ -27,10 +27,9 @@ fi
 
 echo "✅ Node.js 버전 확인 완료: $(node --version)"
 
-# npm 버전 확인 및 업그레이드
+# npm 버전 확인 (업그레이드 시도하지 않음 - Node.js 18과 호환성 문제 방지)
 echo "현재 npm 버전: $(npm --version)"
-npm install -g npm@latest || echo "npm 업그레이드 실패 (계속 진행)"
-echo "업그레이드 후 npm 버전: $(npm --version)"
+echo "💡 npm 업그레이드는 건너뜁니다 (Node.js 18과 호환성 유지)"
 
 # 의존성 설치
 echo "=== 의존성 설치 ==="
