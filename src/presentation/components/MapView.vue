@@ -101,8 +101,22 @@ const reset = async (): Promise<void> => {
   };
   isLoading.value = true;
   try {
+    // 기존 지도 이동 이벤트 리스너 제거 (중복 방지)
+    mapService.removeBoundsChangedListener();
+    
+    // 마커 초기화
     mapService.clearMarkers();
-    await displayMapMarkersUseCase.execute();
+    
+    // 지도를 서울 중심으로 초기화하고 전체 주차장 로드
+    await displayMapMarkersUseCase.execute(undefined, {
+      skipInitialization: false, // 지도 초기화 수행
+      fitBounds: true, // 전체 주차장이 보이도록 조정
+    });
+    
+    // 지도 이동 이벤트 리스너 다시 등록
+    mapService.onBoundsChanged(() => {
+      loadParkingLotsOnMapMove();
+    });
   } catch (error) {
     console.error("초기화 중 오류 발생:", error);
     alert("초기화 중 오류가 발생했습니다.");

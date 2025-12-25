@@ -43,10 +43,9 @@ export class SeoulOpenApiClient {
   public async getParkingLots(
     searchParams?: ParkingLotSearchParams
   ): Promise<ParkingLotDto[]> {
-    // 개발 환경에서는 프록시 사용 (상대 경로), 프로덕션에서는 절대 경로
-    const baseUrl = ApiConstants.API_SERVER_BASE_URL || window.location.origin;
+    // 백엔드 서버 URL 직접 사용
     const url = new URL(
-      `${baseUrl}${ApiConstants.PARKING_LOTS_API_PATH}`
+      `${ApiConstants.API_SERVER_BASE_URL}${ApiConstants.PARKING_LOTS_API_PATH}`
     );
 
     if (searchParams) {
